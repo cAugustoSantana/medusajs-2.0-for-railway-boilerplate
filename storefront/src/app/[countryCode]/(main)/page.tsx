@@ -2,6 +2,7 @@ import { Metadata } from "next"
 
 import FeaturedProducts from "@modules/home/components/featured-products"
 import Hero from "@modules/home/components/hero"
+import ProductRail from "@modules/home/components/featured-products/product-rail"
 import { getCollectionsWithProducts } from "@lib/data/collections"
 import { getRegion } from "@lib/data/regions"
 
@@ -23,14 +24,31 @@ export default async function Home({
     return null
   }
 
+  // Add your hosted video URL here
+  // Example: "https://example.com/videos/hero-video.mp4"
+  // For direct URL, replace the line below with your video URL:
+  const heroVideoUrl = "https://your-hosted-video.com/video.mp4"
+  // Or use environment variable:
+  // const heroVideoUrl = process.env.NEXT_PUBLIC_HERO_VIDEO_URL || undefined
+
+  // Get the first collection for the product rail below the hero
+  const firstCollection = collections[0]
+
   return (
     <>
-      <Hero />
-      <div className="py-12">
-        <ul className="flex flex-col gap-x-6">
-          <FeaturedProducts collections={collections} region={region} />
-        </ul>
-      </div>
+      <Hero videoUrl={heroVideoUrl} />
+      {/* Product Rail directly below the hero */}
+      {firstCollection && (
+        <ProductRail collection={firstCollection} region={region} />
+      )}
+      {/* Additional featured products */}
+      {collections.length > 1 && (
+        <div className="py-12">
+          <ul className="flex flex-col gap-x-6">
+            <FeaturedProducts collections={collections.slice(1)} region={region} />
+          </ul>
+        </div>
+      )}
     </>
   )
 }

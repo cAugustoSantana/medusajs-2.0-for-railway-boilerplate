@@ -6,7 +6,7 @@ import {
   COOKIE_SECRET,
   DATABASE_URL,
   JWT_SECRET,
-  REDIS_URL,
+  //REDIS_URL,
   RESEND_API_KEY,
   RESEND_FROM_EMAIL,
   SENDGRID_API_KEY,
@@ -30,7 +30,7 @@ const medusaConfig = {
   projectConfig: {
     databaseUrl: DATABASE_URL,
     databaseLogging: false,
-    redisUrl: REDIS_URL,
+    //redisUrl: REDIS_URL,
     workerMode: WORKER_MODE,
     http: {
       adminCors: ADMIN_CORS,
@@ -75,7 +75,7 @@ const medusaConfig = {
         ]
       }
     },
-    ...(REDIS_URL ? [{
+    /*...(REDIS_URL ? [{
       key: Modules.EVENT_BUS,
       resolve: '@medusajs/event-bus-redis',
       options: {
@@ -90,7 +90,7 @@ const medusaConfig = {
           url: REDIS_URL,
         }
       }
-    }] : []),
+    }] : []),*/
     ...(SENDGRID_API_KEY && SENDGRID_FROM_EMAIL || RESEND_API_KEY && RESEND_FROM_EMAIL ? [{
       key: Modules.NOTIFICATION,
       resolve: '@medusajs/notification',
