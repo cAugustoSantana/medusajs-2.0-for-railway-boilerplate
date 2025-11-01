@@ -20,6 +20,10 @@ const nextConfig = {
         hostname: "localhost",
         
       },
+      {
+        protocol: "https",
+        hostname: "bucket-production-1566.up.railway.app",
+      },
       { // Note: needed to serve images from /public folder
         protocol: process.env.NEXT_PUBLIC_BASE_URL?.startsWith('https') ? 'https' : 'http',
         hostname: process.env.NEXT_PUBLIC_BASE_URL?.replace(/^https?:\/\//, ''),

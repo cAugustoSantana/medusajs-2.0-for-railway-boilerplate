@@ -37,18 +37,10 @@ export default async function Home({
   return (
     <>
       <Hero videoUrl={heroVideoUrl} />
-      {/* Product Rail directly below the hero */}
-      {firstCollection && (
+      {/* Product Rail directly below the hero */}{firstCollection && (
         <ProductRail collection={firstCollection} region={region} />
       )}
-      {/* Additional featured products */}
-      {collections.length > 1 && (
-        <div className="py-12">
-          <ul className="flex flex-col gap-x-6">
-            <FeaturedProducts collections={collections.slice(1)} region={region} />
-          </ul>
-        </div>
-      )}
+      
     </>
   )
 }
