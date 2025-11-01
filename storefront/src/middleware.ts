@@ -108,6 +108,11 @@ export async function middleware(request: NextRequest) {
     (!isOnboarding || onboardingCookie) &&
     (!cartId || cartIdCookie)
   ) {
+    // Redirect home page to coming-soon (except if already on coming-soon)
+    if (request.nextUrl.pathname === `/${countryCode}` || request.nextUrl.pathname === `/${countryCode}/`) {
+      const redirectUrl = `${request.nextUrl.origin}/${countryCode}/coming-soon${queryString}`
+      return NextResponse.redirect(redirectUrl, 307)
+    }
     return NextResponse.next()
   }
 
@@ -122,7 +127,12 @@ export async function middleware(request: NextRequest) {
 
   // If no country code is set, we redirect to the relevant region.
   if (!urlHasCountryCode && countryCode) {
-    redirectUrl = `${request.nextUrl.origin}/${countryCode}${redirectPath}${queryString}`
+    // If accessing root path, redirect directly to coming-soon
+    if (request.nextUrl.pathname === "/") {
+      redirectUrl = `${request.nextUrl.origin}/${countryCode}/coming-soon${queryString}`
+    } else {
+      redirectUrl = `${request.nextUrl.origin}/${countryCode}${redirectPath}${queryString}`
+    }
     response = NextResponse.redirect(`${redirectUrl}`, 307)
   }
 
