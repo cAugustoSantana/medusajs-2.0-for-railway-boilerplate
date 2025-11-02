@@ -2,6 +2,12 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
+@layer base {
+  body {
+    font-family: "Helvetica", "Helvetica Neue", "Arial", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Ubuntu", sans-serif;
+  }
+}
+
 @layer utilities {
   /* Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {

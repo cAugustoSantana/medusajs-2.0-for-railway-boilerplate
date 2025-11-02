@@ -12,13 +12,19 @@ export default function ComingSoonPage() {
 
   return (
     <div className="min-h-screen w-full relative bg-gradient-to-br from-grey-90 via-grey-80 to-grey-70 flex items-center justify-center">
-      {/* Background Pattern Overlay */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-          backgroundSize: '40px 40px'
-        }} />
-      </div>
+      {/* Video Background */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+      >
+        <source src="https://bucket-production-1566.up.railway.app/medusa-media/0925%20_2_3.mp4" type="video/mp4" />
+      </video>
+      
+      {/* Dark overlay for better text readability */}
+      <div className="absolute inset-0 bg-gradient-to-br from-grey-90/60 via-grey-80/50 to-grey-70/60" />
 
       {/* Content */}
       <div className="relative z-10 w-full max-w-2xl mx-auto px-6 text-center">
