@@ -1,6 +1,7 @@
 import { Metadata } from "next"
 
-import ConditionalLayout from "./components/conditional-layout"
+import Footer from "@modules/layout/templates/footer"
+import Nav from "@modules/layout/templates/nav"
 import { getBaseURL } from "@lib/util/env"
 
 export const metadata: Metadata = {
@@ -8,5 +9,11 @@ export const metadata: Metadata = {
 }
 
 export default async function PageLayout(props: { children: React.ReactNode }) {
-  return <ConditionalLayout>{props.children}</ConditionalLayout>
+  return (
+    <>
+      <Nav />
+      {props.children}
+      <Footer />
+    </>
+  )
 }
