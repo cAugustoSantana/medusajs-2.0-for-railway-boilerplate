@@ -66,6 +66,9 @@ export default function ComingSoonPage() {
                 >
                   Regístrate
                 </Heading>
+                <Text className="text-lg small:text-xl font-bold text-white">
+                 Suscríbete para recibir las últimas actualizaciones y novedades.
+                </Text>
               </div>
               <form action={formAction} className="w-full max-w-2xl mx-auto">
                 <div className="flex flex-col small:flex-row gap-4">
