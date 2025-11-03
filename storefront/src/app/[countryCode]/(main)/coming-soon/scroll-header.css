@@ -1,0 +1,11 @@
+/* Header scroll transparency styles */
+.coming-soon-header header.scrolled-transparent {
+  background-color: transparent !important;
+  backdrop-filter: blur(0);
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.coming-soon-header header.scrolled-opaque {
+  background-color: black !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
