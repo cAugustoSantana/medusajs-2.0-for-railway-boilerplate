@@ -1,5 +1,7 @@
 "use server"
 
+const MEDUSA_BACKEND_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"
+
 export async function subscribeEmail(
   prevState: { success: boolean; error: string | null } | null,
   formData: FormData
@@ -17,23 +19,29 @@ export async function subscribeEmail(
   }
 
   try {
-    // TODO: Implement your email subscription logic here
-    // Examples:
-    // - Save to database
-    // - Send to email service (Mailchimp, SendGrid, Resend, etc.)
-    // - Add to a queue for processing
-    // - Store in a file/database
-    
-    console.log("Email subscription:", email)
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
+    // Call backend API to subscribe email and send welcome email
+    const response = await fetch(`${MEDUSA_BACKEND_URL}/store/email-subscribe`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: data.error || "Something went wrong. Please try again.",
+      }
+    }
+
     return { success: true, error: null }
   } catch (error) {
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : "Something went wrong. Please try again." 
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Something went wrong. Please try again.",
     }
   }
 }

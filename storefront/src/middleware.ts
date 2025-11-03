@@ -85,6 +85,25 @@ async function getCountryCode(
 }
 
 /**
+ * Check if a path is allowed in coming-soon mode
+ */
+function isAllowedPath(pathname: string): boolean {
+  // Allow Next.js internal routes
+  if (pathname.startsWith('/_next/')) return true
+  
+  // Allow API routes
+  if (pathname.startsWith('/api/')) return true
+  
+  // Allow static assets
+  if (pathname.match(/\.(ico|png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|eot)$/)) return true
+  
+  // Allow favicon and icons
+  if (pathname.startsWith('/favicon') || pathname.startsWith('/icon')) return true
+  
+  return false
+}
+
+/**
  * Middleware to handle region selection and onboarding status.
  */
 export async function middleware(request: NextRequest) {
@@ -96,11 +115,34 @@ export async function middleware(request: NextRequest) {
   const cartIdCookie = request.cookies.get("_medusa_cart_id")
 
   const regionMap = await getRegionMap()
-
   const countryCode = regionMap && (await getCountryCode(request, regionMap))
+  
+  const pathname = request.nextUrl.pathname
+  const queryString = request.nextUrl.search ? request.nextUrl.search : ""
+
+  // COMING SOON MODE: Block all routes except coming-soon
+  const COMING_SOON_MODE = process.env.NEXT_PUBLIC_COMING_SOON_MODE === 'true'
+  
+  if (COMING_SOON_MODE && countryCode) {
+    const comingSoonPath = `/${countryCode}/coming-soon`
+    
+    // Allow coming-soon page
+    if (pathname === comingSoonPath || pathname === `${comingSoonPath}/`) {
+      // Continue with normal middleware flow
+    }
+    // Allow static assets and API routes
+    else if (isAllowedPath(pathname)) {
+      return NextResponse.next()
+    }
+    // Block everything else - redirect to coming-soon
+    else {
+      const redirectUrl = `${request.nextUrl.origin}${comingSoonPath}${queryString}`
+      return NextResponse.redirect(redirectUrl, 307)
+    }
+  }
 
   const urlHasCountryCode =
-    countryCode && request.nextUrl.pathname.split("/")[1].includes(countryCode)
+    countryCode && pathname.split("/")[1].includes(countryCode)
 
   // check if one of the country codes is in the url
   if (
@@ -109,7 +151,7 @@ export async function middleware(request: NextRequest) {
     (!cartId || cartIdCookie)
   ) {
     // Redirect home page to coming-soon (except if already on coming-soon)
-    if (request.nextUrl.pathname === `/${countryCode}` || request.nextUrl.pathname === `/${countryCode}/`) {
+    if (pathname === `/${countryCode}` || pathname === `/${countryCode}/`) {
       const redirectUrl = `${request.nextUrl.origin}/${countryCode}/coming-soon${queryString}`
       return NextResponse.redirect(redirectUrl, 307)
     }
@@ -117,9 +159,7 @@ export async function middleware(request: NextRequest) {
   }
 
   const redirectPath =
-    request.nextUrl.pathname === "/" ? "" : request.nextUrl.pathname
-
-  const queryString = request.nextUrl.search ? request.nextUrl.search : ""
+    pathname === "/" ? "" : pathname
 
   let redirectUrl = request.nextUrl.href
 
