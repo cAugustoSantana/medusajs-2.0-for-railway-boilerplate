@@ -7,6 +7,11 @@ import "./scroll-header.css"
 
 export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
+  title: "cobain©",
+  description: "La Van A Senti",
+  icons: {
+    icon: '/Asset-3.ico',
+  },
 }
 
 export default function ComingSoonLayout({
