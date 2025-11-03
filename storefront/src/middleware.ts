@@ -107,6 +107,19 @@ function isAllowedPath(pathname: string): boolean {
  * Middleware to handle region selection and onboarding status.
  */
 export async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname
+  const queryString = request.nextUrl.search ? request.nextUrl.search : ""
+  
+  // COMING SOON MODE: Block all routes except coming-soon
+  // Check environment variable - in Edge runtime, NEXT_PUBLIC_ vars should be available
+  const COMING_SOON_MODE = process.env.NEXT_PUBLIC_COMING_SOON_MODE === 'true' || 
+                           process.env.NEXT_PUBLIC_COMING_SOON_MODE === '1'
+  
+  // Allow static assets and API routes before any other checks
+  if (isAllowedPath(pathname)) {
+    return NextResponse.next()
+  }
+  
   const searchParams = request.nextUrl.searchParams
   const isOnboarding = searchParams.get("onboarding") === "true"
   const cartId = searchParams.get("cart_id")
@@ -117,27 +130,40 @@ export async function middleware(request: NextRequest) {
   const regionMap = await getRegionMap()
   const countryCode = regionMap && (await getCountryCode(request, regionMap))
   
-  const pathname = request.nextUrl.pathname
-  const queryString = request.nextUrl.search ? request.nextUrl.search : ""
-
-  // COMING SOON MODE: Block all routes except coming-soon
-  const COMING_SOON_MODE = process.env.NEXT_PUBLIC_COMING_SOON_MODE === 'true'
-  
-  if (COMING_SOON_MODE && countryCode) {
-    const comingSoonPath = `/${countryCode}/coming-soon`
+  // If coming-soon mode is enabled, process route blocking early
+  if (COMING_SOON_MODE) {
+    // Use countryCode from URL if available, otherwise try to get it
+    let effectiveCountryCode = countryCode
     
-    // Allow coming-soon page
-    if (pathname === comingSoonPath || pathname === `${comingSoonPath}/`) {
-      // Continue with normal middleware flow
+    // If countryCode not available yet, try to extract from pathname
+    if (!effectiveCountryCode) {
+      const pathParts = pathname.split('/').filter(Boolean)
+      if (pathParts.length > 0 && regionMap) {
+        const possibleCountryCode = pathParts[0].toLowerCase()
+        if (regionMap.has(possibleCountryCode)) {
+          effectiveCountryCode = possibleCountryCode
+        }
+      }
     }
-    // Allow static assets and API routes
-    else if (isAllowedPath(pathname)) {
-      return NextResponse.next()
+    
+    // Fallback to default region if still no country code
+    if (!effectiveCountryCode && DEFAULT_REGION) {
+      effectiveCountryCode = DEFAULT_REGION
     }
-    // Block everything else - redirect to coming-soon
-    else {
-      const redirectUrl = `${request.nextUrl.origin}${comingSoonPath}${queryString}`
-      return NextResponse.redirect(redirectUrl, 307)
+    
+    // If we have a country code, enforce coming-soon mode
+    if (effectiveCountryCode) {
+      const comingSoonPath = `/${effectiveCountryCode}/coming-soon`
+      
+      // Allow coming-soon page - continue with normal middleware
+      if (pathname === comingSoonPath || pathname === `${comingSoonPath}/`) {
+        // Continue to normal middleware flow below
+      }
+      // Block everything else - redirect to coming-soon
+      else {
+        const redirectUrl = new URL(comingSoonPath + queryString, request.url)
+        return NextResponse.redirect(redirectUrl, 307)
+      }
     }
   }
 
