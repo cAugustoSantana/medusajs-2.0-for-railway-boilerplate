@@ -2,6 +2,21 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
+/* Futura PT Bold Font Face */
+/* Option 1: If you have font files, uncomment and update paths */
+/*
+@font-face {
+  font-family: "Futura PT Bold";
+  src: url("/fonts/FuturaPT-Bold.woff2") format("woff2"),
+       url("/fonts/FuturaPT-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+*/
+
+/* Option 2: If using a CDN, add the link in layout.tsx head section */
+
 @layer base {
   body {
     font-family: "Helvetica", "Helvetica Neue", "Arial", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Ubuntu", sans-serif;
@@ -114,5 +129,15 @@
 
   .text-3xl-semi {
     @apply text-[32px] leading-[44px] font-semibold;
+  }
+
+  /* Futura PT Bold Utility Classes */
+  .font-futura-bold {
+    font-family: "Futura PT Bold", "Futura-Bold", "Futura PT", "Futura", "Helvetica", "Arial", sans-serif;
+    font-weight: 700;
+  }
+
+  .text-futura-bold {
+    @apply font-futura-bold;
   }
 }

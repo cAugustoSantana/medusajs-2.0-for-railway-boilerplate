@@ -71,6 +71,23 @@ module.exports = {
           "Ubuntu",
           "sans-serif",
         ],
+        futura: [
+          "Futura PT Bold",
+          "Futura PT",
+          "Futura",
+          "Helvetica",
+          "Arial",
+          "sans-serif",
+        ],
+        "futura-bold": [
+          "Futura PT Bold",
+          "Futura-Bold",
+          "Futura PT",
+          "Futura",
+          "Helvetica",
+          "Arial",
+          "sans-serif",
+        ],
       },
       keyframes: {
         ring: {

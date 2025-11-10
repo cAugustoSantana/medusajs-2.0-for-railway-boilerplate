@@ -34,28 +34,22 @@ export const getCollectionsWithProducts = cache(
       return null
     }
 
-    const collectionIds = collections
-      .map((collection) => collection.id)
-      .filter(Boolean) as string[]
+    // Fetch products for each collection individually to ensure each gets enough products
+    for (const collection of collections) {
+      if (!collection.id) continue
 
-    const { response } = await getProductsList({
-      queryParams: { collection_id: collectionIds },
-      countryCode,
-    })
+      const { response } = await getProductsList({
+        queryParams: { 
+          collection_id: collection.id,
+          limit: 100, // Increase limit to get more products per collection
+        },
+        countryCode,
+      })
 
-    response.products.forEach((product) => {
-      const collection = collections.find(
-        (collection) => collection.id === product.collection_id
-      )
-
-      if (collection) {
-        if (!collection.products) {
-          collection.products = []
-        }
-
-        collection.products.push(product as any)
+      if (response.products) {
+        collection.products = response.products as any
       }
-    })
+    }
 
     return collections as unknown as HttpTypes.StoreCollection[]
   }
