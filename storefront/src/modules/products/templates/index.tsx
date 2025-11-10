@@ -32,14 +32,20 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
         className="content-container flex flex-col small:flex-row small:items-start py-6 relative"
         data-testid="product-container"
       >
-        <div className="flex flex-col small:sticky small:top-48 small:py-0 small:max-w-[300px] w-full py-8 gap-y-6">
+        {/* Column 1: Info - Order 2 on mobile, Order 1 on desktop */}
+        <div className="order-2 small:order-1 flex flex-col small:sticky small:top-48 small:py-0 small:max-w-[300px] w-full py-8 gap-y-6">
           <ProductInfo product={product} />
-          <ProductTabs product={product} />
+          {/* Tabs for desktop only - hidden on mobile */}
+          <div className="hidden small:block">
+            <ProductTabs product={product} />
+          </div>
         </div>
-        <div className="block w-full relative">
+        {/* Column 2: Images - Order 1 on mobile, Order 2 on desktop */}
+        <div className="order-1 small:order-2 block w-full relative">
           <ImageGallery images={product?.images || []} />
         </div>
-        <div className="flex flex-col small:sticky small:top-48 small:py-0 small:max-w-[300px] w-full py-8 gap-y-12">
+        {/* Column 3: Actions - Order 3 on mobile, Order 3 on desktop */}
+        <div className="order-3 flex flex-col small:sticky small:top-48 small:py-0 small:max-w-[300px] w-full py-4 small:gap-y-12 gap-y-6">
           <ProductOnboardingCta />
           <Suspense
             fallback={
@@ -53,6 +59,10 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
             <ProductActionsWrapper id={product.id} region={region} />
           </Suspense>
         </div>
+      </div>
+      {/* Tabs for mobile only - appears below Add to Cart */}
+      <div className="content-container small:hidden py-6">
+        <ProductTabs product={product} />
       </div>
       <div
         className="content-container my-16 small:my-32"
