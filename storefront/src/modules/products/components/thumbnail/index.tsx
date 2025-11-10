@@ -36,7 +36,7 @@ const Thumbnail: React.FC<ThumbnailProps> = ({
           "w-[180px]": size === "small",
           "w-[290px]": size === "medium",
           "w-[440px]": size === "large",
-          "w-full": size === "full",
+          "w-[70%] mx-auto": size === "full",
         }
       )}
       data-testid={dataTestid}
