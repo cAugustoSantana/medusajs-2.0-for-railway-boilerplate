@@ -1,5 +1,6 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
 import {
   getCollectionByHandle,
@@ -78,11 +79,13 @@ export default async function CollectionPage({ params, searchParams }: Props) {
   }
 
   return (
-    <CollectionTemplate
-      collection={collection}
-      page={page}
-      sortBy={sortBy}
-      countryCode={params.countryCode}
-    />
+    <Suspense fallback={<div className="content-container py-6">Loading...</div>}>
+      <CollectionTemplate
+        collection={collection}
+        page={page}
+        sortBy={sortBy}
+        countryCode={params.countryCode}
+      />
+    </Suspense>
   )
 }
