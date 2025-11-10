@@ -79,6 +79,13 @@ export default async function ProductPage({ params }: Props) {
     notFound()
   }
 
+  // Debug: Log product data to server console
+  if (process.env.NODE_ENV === "development") {
+    console.log("=== PRODUCT API DATA ===")
+    console.log(JSON.stringify(pricedProduct, null, 2))
+    console.log("=======================")
+  }
+
   return (
     <ProductTemplate
       product={pricedProduct}

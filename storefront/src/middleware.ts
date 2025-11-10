@@ -85,40 +85,11 @@ async function getCountryCode(
 }
 
 /**
- * Check if a path is allowed in coming-soon mode
- */
-function isAllowedPath(pathname: string): boolean {
-  // Allow Next.js internal routes
-  if (pathname.startsWith('/_next/')) return true
-  
-  // Allow API routes
-  if (pathname.startsWith('/api/')) return true
-  
-  // Allow static assets
-  if (pathname.match(/\.(ico|png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|eot)$/)) return true
-  
-  // Allow favicon and icons
-  if (pathname.startsWith('/favicon') || pathname.startsWith('/icon')) return true
-  
-  return false
-}
-
-/**
  * Middleware to handle region selection and onboarding status.
  */
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
   const queryString = request.nextUrl.search ? request.nextUrl.search : ""
-  
-  // COMING SOON MODE: Block all routes except coming-soon
-  // Check environment variable - in Edge runtime, NEXT_PUBLIC_ vars should be available
-  const COMING_SOON_MODE = process.env.NEXT_PUBLIC_COMING_SOON_MODE === 'true' || 
-                           process.env.NEXT_PUBLIC_COMING_SOON_MODE === '1'
-  
-  // Allow static assets and API routes before any other checks
-  if (isAllowedPath(pathname)) {
-    return NextResponse.next()
-  }
   
   const searchParams = request.nextUrl.searchParams
   const isOnboarding = searchParams.get("onboarding") === "true"
@@ -129,43 +100,6 @@ export async function middleware(request: NextRequest) {
 
   const regionMap = await getRegionMap()
   const countryCode = regionMap && (await getCountryCode(request, regionMap))
-  
-  // If coming-soon mode is enabled, process route blocking early
-  if (COMING_SOON_MODE) {
-    // Use countryCode from URL if available, otherwise try to get it
-    let effectiveCountryCode = countryCode
-    
-    // If countryCode not available yet, try to extract from pathname
-    if (!effectiveCountryCode) {
-      const pathParts = pathname.split('/').filter(Boolean)
-      if (pathParts.length > 0 && regionMap) {
-        const possibleCountryCode = pathParts[0].toLowerCase()
-        if (regionMap.has(possibleCountryCode)) {
-          effectiveCountryCode = possibleCountryCode
-        }
-      }
-    }
-    
-    // Fallback to default region if still no country code
-    if (!effectiveCountryCode && DEFAULT_REGION) {
-      effectiveCountryCode = DEFAULT_REGION
-    }
-    
-    // If we have a country code, enforce coming-soon mode
-    if (effectiveCountryCode) {
-      const comingSoonPath = `/${effectiveCountryCode}/coming-soon`
-      
-      // Allow coming-soon page - continue with normal middleware
-      if (pathname === comingSoonPath || pathname === `${comingSoonPath}/`) {
-        // Continue to normal middleware flow below
-      }
-      // Block everything else - redirect to coming-soon
-      else {
-        const redirectUrl = new URL(comingSoonPath + queryString, request.url)
-        return NextResponse.redirect(redirectUrl, 307)
-      }
-    }
-  }
 
   const urlHasCountryCode =
     countryCode && pathname.split("/")[1].includes(countryCode)
@@ -176,11 +110,6 @@ export async function middleware(request: NextRequest) {
     (!isOnboarding || onboardingCookie) &&
     (!cartId || cartIdCookie)
   ) {
-    // Redirect home page to coming-soon (except if already on coming-soon)
-    if (pathname === `/${countryCode}` || pathname === `/${countryCode}/`) {
-      const redirectUrl = `${request.nextUrl.origin}/${countryCode}/coming-soon${queryString}`
-      return NextResponse.redirect(redirectUrl, 307)
-    }
     return NextResponse.next()
   }
 
@@ -193,12 +122,7 @@ export async function middleware(request: NextRequest) {
 
   // If no country code is set, we redirect to the relevant region.
   if (!urlHasCountryCode && countryCode) {
-    // If accessing root path, redirect directly to coming-soon
-    if (request.nextUrl.pathname === "/") {
-      redirectUrl = `${request.nextUrl.origin}/${countryCode}/coming-soon${queryString}`
-    } else {
-      redirectUrl = `${request.nextUrl.origin}/${countryCode}${redirectPath}${queryString}`
-    }
+    redirectUrl = `${request.nextUrl.origin}/${countryCode}${redirectPath}${queryString}`
     response = NextResponse.redirect(`${redirectUrl}`, 307)
   }
 
